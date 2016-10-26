@@ -22,6 +22,20 @@ footer {
 	width: 100%;
 	padding: 1.5em 0;
 }
+.div-content-area {
+
+}
+.aside-left {
+	float: left;
+	width: 50%; 
+	background-color:lightgreen;
+}
+.aside-right {
+	float: right;
+	width: 50%; 
+	background-color:lightblue;
+}
+
 .div-top, .div-character, .div-enemies, .div-defender, .div-fight-stats {
 	height:20%;
 	width:100%;
