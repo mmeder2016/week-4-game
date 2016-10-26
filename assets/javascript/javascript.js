@@ -1,9 +1,9 @@
 
 $(document).ready(function(){
 
-	$("#id-button").click(function(){
-	    $("header").hide();
+	$(".img-curly").click(function(){
+		$("footer").hide();
+		console.log("img-curly");
 	});
-   
 
 });
