@@ -4,6 +4,7 @@ $(document).ready(function() {
         $(".div-curly, .div-moe, .div-larry, .div-shemp").show();
         $(".div-curly-enemy, .div-moe-enemy, .div-larry-enemy, .div-shemp-enemy").hide();
         $(".div-curly-defender, .div-moe-defender, .div-larry-defender, .div-shemp-defender").hide();
+        gameObj.startGame();
     });
 
     // Choose character funtions

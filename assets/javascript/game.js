@@ -1,52 +1,244 @@
 $(document).ready(function() {
+	var fighterHasBeenChosen = false;
+	var defenderHasBeenChosen = false;
 
+	/*
+		Game object usage and rules
+		For setting characters values must match indices of the
+		character array: Curly = 0, Moe = 1, Larry = 2, Shemp = 3
 
-    $("#id-test-game").click(function() {
+		Start game button calls gameObj.startGame();
+
+		Attack button calls: gameObj.getDefenderHP(), gameObj.getFighterHP(),
+		 gameObj.getDefenderName(), gameObj.getFighterName(), 
+		 gameObj.resetDefender()
+	*/
+	var hpClasses = [".hp-curly", ".hp-moe", ".hp-larry", ".hp-shemp"];
+	var enemyDivs = [".div-curly-enemy", ".div-moe-enemy", ".div-larry-enemy", ".div-shemp-enemy"];
+	var defenderDivs = [".div-curly-defender", ".div-moe-defender", ".div-larry-defender", ".div-shemp-defender"];
+
+	/////////////////// SECTION 1 FRONT END CODE ///////////////////
+    $("#id-start-game").click(function() {
+        $(".div-curly, .div-moe, .div-larry, .div-shemp").show();
+        $(".div-curly-enemy, .div-moe-enemy, .div-larry-enemy, .div-shemp-enemy").hide();
+        $(".div-curly-defender, .div-moe-defender, .div-larry-defender, .div-shemp-defender").hide();
+		fighterHasBeenChosen = false;
+		defenderHasBeenChosen = false;
+
         gameObj.startGame();
-        gameObj.logCharacters();
-        // gameObj.fighter = 2;
-        // gameObj.defender = 0;
-        gameObj.createPermutations();
-        gameObj.fightWithPermutations();
-        //gameObj.attackUntilDeath(3, 0);
-
+        for(var i = 0; i < 4; i++)
+           $(hpClasses[i]).text("HP "+ gameObj.getHP(i).toString());
     });
 
+    $(".button-attack").click(function() {
+        if(fighterHasBeenChosen && defenderHasBeenChosen)
+    	{
+    		var ret = gameObj.attack();
+    		// Update healthPoints
+    		$(hpClasses[gameObj.defender]).text("HP "+ gameObj.getDefenderHP().toString());
+    		$(hpClasses[gameObj.fighter]).text("HP "+ gameObj.getFighterHP().toString());
+
+    		// Print message about the attack losses
+    		$(".p-attack-info-top").text("Fighter "+ gameObj.getFighterName() + " lost "+ gameObj.getDefenderCAPString() +" points.");
+    		$(".p-attack-info-bottom").text("Defender "+ gameObj.getDefenderName() + " lost "+ gameObj.getFighterAPString() +" points.");
+
+    		if(ret === 0)
+    		{
+    			// return 0 fighter is dead
+    			$(".p-attack-info-top").text("Fighter "+ gameObj.getFighterName() + " lost to defender "+ gameObj.getDefenderName() +".");
+    		} else if (ret === 1) {
+    			// return 1 fighter and defender are still alive
+    		} else {
+    			// return 2 defender is dead, fighter still has health points
+    			$(".p-attack-info-bottom").text("Fighter "+ gameObj.getFighterName() +" defeated defender "+ gameObj.getDefenderName() +".");
+    			// This defender lost and needs to be invalidated
+    			defenderHasBeenChosen = false;
+    			$(defenderDivs[gameObj.defender]).hide();
+    			gameObj.resetDefender();
+    		}
+    	}
+    });
+
+    // Choose character functions
+    $(".div-curly").click(function() {
+    	if(fighterHasBeenChosen === false) {
+	        $(".div-moe, .div-larry, .div-shemp").hide();
+	        $(".div-moe-enemy, .div-larry-enemy, .div-shemp-enemy").show();
+	        gameObj.fighter = 0;
+	        fighterHasBeenChosen = true;    		
+    	}
+    });
+    $(".div-moe").click(function() {
+    	if(fighterHasBeenChosen === false) {
+	        $(".div-curly, .div-larry, .div-shemp").hide();
+	        $(".div-curly-enemy, .div-larry-enemy, .div-shemp-enemy").show();
+	        gameObj.fighter = 1;
+	        fighterHasBeenChosen = true;
+	    }
+    });
+    $(".div-larry").click(function() {
+    	if(fighterHasBeenChosen === false) {
+	        $(".div-moe, .div-curly, .div-shemp").hide();
+	        $(".div-moe-enemy, .div-curly-enemy, .div-shemp-enemy").show();
+	        gameObj.fighter = 2;
+	        fighterHasBeenChosen = true;
+	    }
+    });
+    $(".div-shemp").click(function() {
+    	if(fighterHasBeenChosen === false) {
+	        $(".div-moe, .div-curly, .div-larry").hide();
+	        $(".div-moe-enemy, .div-curly-enemy, .div-larry-enemy").show();
+	        gameObj.fighter = 3;
+	        fighterHasBeenChosen = true;
+	    }
+    });
+
+    // Choose defender funtions
+    $(".div-curly-enemy").click(function() {
+    	if(defenderHasBeenChosen === false) {
+	        $(".div-curly-enemy").hide();
+	        $(".div-curly-defender").show();
+	        gameObj.defender = 0;
+	        defenderHasBeenChosen = true;
+	    }
+    });
+    $(".div-moe-enemy").click(function() {
+    	if(defenderHasBeenChosen === false) {
+	        $(".div-moe-enemy").hide();
+	        $(".div-moe-defender").show();
+	        gameObj.defender = 1;
+	        defenderHasBeenChosen = true;
+	    }
+    });
+    $(".div-larry-enemy").click(function() {
+    	if(defenderHasBeenChosen === false) {
+	        $(".div-larry-enemy").hide();
+	        $(".div-larry-defender").show();
+	        gameObj.defender = 2;
+	        defenderHasBeenChosen = true;
+	    }
+    });
+    $(".div-shemp-enemy").click(function() {
+    	if(defenderHasBeenChosen === false) {
+	        $(".div-shemp-enemy").hide();
+	        $(".div-shemp-defender").show();
+	        gameObj.defender = 3;
+	        defenderHasBeenChosen = true;
+	    }
+    });
+
+	/////////////////// SECTION 2 GAME CODE ///////////////////
+    // CHARACTER DATA
     var characters = [{
         stooge: "Curly",
-        healthPoints: 0,
-        attackBase: 0,
-        attackPower: 0,
-        counterAttackPower: 0,
+        healthPoints: 145,
+        attackBase: 8,
+        attackPower: 16,
+        counterAttackPower: 22,
         wins: 0 // Strictly for debugging statistics
     }, {
         stooge: "Moe",
-        healthPoints: 0,
-        attackBase: 0,
-        attackPower: 0,
-        counterAttackPower: 0,
+        healthPoints: 176,
+        attackBase: 6,
+        attackPower: 10,
+        counterAttackPower: 20,
         wins: 0 // Strictly for debugging statistics
     }, {
         stooge: "Larry",
-        healthPoints: 0,
-        attackBase: 0,
-        attackPower: 0,
-        counterAttackPower: 0,
+        healthPoints: 160,
+        attackBase: 7,
+        attackPower: 20,
+        counterAttackPower: 16,
         wins: 0 // Strictly for debugging statistics
     }, {
         stooge: "Shemp",
-        healthPoints: 0,
-        attackBase: 0,
-        attackPower: 0,
-        counterAttackPower: 0,
+        healthPoints: 150,
+        attackBase: 9,
+        attackPower: 12,
+        counterAttackPower: 18,
         wins: 0 // Strictly for debugging statistics
     }];
+
+
+    // This button must be un-commented from index.html to work
+	// It will run every permutation of fight orders and log
+	// statistics to the console
+	$("#id-test-game").click(function() {
+		gameObj.startGame();
+		gameObj.logCharacters();
+		gameObj.createPermutations();
+		gameObj.fightWithPermutations();
+		gameObj.attackUntilDeath(3, 0);
+	});
 
 
     var gameObj = {
         // indices into fighter array
         fighter: -1,
         defender: -1,
+
+        resetFighter: function()
+        {
+        	fighter = -1;
+        },
+        resetDefender: function()
+        {
+        	defender = -1;
+        },
+        getHP(n){
+        	if(n >= 0 && n < characters.length) {
+        		return characters[n].healthPoints;	
+        	} else {
+        		return -10000;
+        	}
+        },
+        getFighterHP: function()
+        {
+        	if(this.fighter >= 0 && this.fighter < characters.length) {
+        		return characters[this.fighter].healthPoints;	
+        	} else {
+        		return -10000;
+        	}
+        },
+        getDefenderHP: function()
+        {
+        	if(this.defender >= 0 && this.defender < characters.length) {
+        		return characters[this.defender].healthPoints;	
+        	} else {
+        		return -10000;
+        	}
+        },
+        getFighterName: function()
+        {
+        	if(this.fighter >= 0 && this.fighter < characters.length) {
+        		return characters[this.fighter].stooge;	
+        	} else {
+        		return "INDEX OUT OF BOUNDS ERROR";
+        	}
+        },
+        getDefenderName: function()
+        {
+        	if(this.defender >= 0 && this.defender < characters.length) {
+        		return characters[this.defender].stooge;	
+        	} else {
+        		return "INDEX OUT OF BOUNDS ERROR";
+        	}
+        },
+        getFighterAPString: function() {
+        	if(this.fighter >= 0 && this.fighter < characters.length) {
+        		return characters[this.fighter].attackPower.toString();
+        	} else {
+        		return "INDEX OUT OF BOUNDS ERROR";
+        	}
+        },
+
+        getDefenderCAPString: function() {
+        	if(this.defender >= 0 && this.defender < characters.length) {
+        		return characters[this.defender].counterAttackPower.toString();
+        	} else {
+        		return "INDEX OUT OF BOUNDS ERROR";
+        	}
+        },
 
         startGame: function() {
             this.fighter = -1;
@@ -106,23 +298,14 @@ $(document).ready(function() {
             }
         },
 
-        fighterWins: function() {
-            //console.log("fighter wins");
-        },
-        defenderWins: function() {
-            //console.log("defender wins");
-        },
-
+        /////////////////// SECTION 3 GAME OBJECT TESTING ///////////////////
         // BELOW ARE THE AUTOMATED TEST AND DEBUGGING FUNCTIONS. TO USE THE 
         // FOLLOWING CODE, UNCOMMENT THE test-game BUTTON IN INDEX.HTML. 
         // CLICKING ON THIS BUTTON WILL RUN EVERY PERMUTATION OF THE FIGHT
-        // AND LOGG THE RESULTS IN THE CONSOLE.
+        // AND LOG THE RESULTS IN THE CONSOLE.
+
         fighterCount: 0,
         defenderCount: 0,
-        moeWins: 0,
-        larryWins: 0,
-        curlyWins: 0,
-        shempWins: 0,
 
         createPermutations: function() {
             // Each group of 4 numbers (0 thru 3) is a permutation.
@@ -164,12 +347,10 @@ $(document).ready(function() {
             //this.logIndividualCharacter(this.fighter);
             //this.logIndividualCharacter(this.defender);
             if (ret === 0) {
-                this.defenderWins();
                 // If defender wins return 0
                 return 0;
             } else if (ret === 2) {
                 // If fighter wins return 2
-                this.fighterWins();
                 return 2;
             }
         },

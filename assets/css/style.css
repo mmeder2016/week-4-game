@@ -52,6 +52,7 @@ h3 {
 }
 
 /* The below divs are all in the aside-left */
+/* This is the order of all the aside-left divs top to bottom.*/
 .div-top, .div-character, .div-enemies, .div-defender, .div-fight-stats {
 	height:20%;
 	width:100%;
@@ -59,16 +60,28 @@ h3 {
 	color: white;
 	border: solid .3em white;
 }
-/* The below div is in the aside-left */
+/* aside-left 2nd div */
 .div-character {
 	background: #000022;
 	height:200px;
 }
+/* aside-left 3rd div */
 .div-enemies{
 	height:200px;
 }
+/* aside-left 4th div */
 .div-defender {
 	height:200px;
+}
+/* aside-left 5th div */
+.div-fight-stats {
+	height:120px;
+}
+.p-attack-info-top, .p-attack-info-bottom {
+	margin: .5em 0 .5em 2em;
+}
+.button-attack {
+	margin-left: 2em;
 }
 /* The below div is in the div-character */
 .div-curly, .div-moe, .div-shemp, .div-larry, .div-curly-enemy, .div-moe-enemy, .div-shemp-enemy, .div-larry-enemy, .div-curly-defender, .div-moe-defender, .div-shemp-defender, .div-larry-defender {
