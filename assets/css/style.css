@@ -85,12 +85,12 @@ h3 {
 }
 
 .div-curly-enemy, .div-moe-enemy, .div-shemp-enemy, .div-larry-enemy {
-	/*display:none;*/
+	display:none;
 	background: red;
 }
 
 .div-curly-defender, .div-moe-defender, .div-shemp-defender, .div-larry-defender {
-	/*display:none;*/
+	display:none;
 	background: black;	
 }
 
