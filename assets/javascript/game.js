@@ -1,6 +1,8 @@
 $(document).ready(function() {
 	var fighterHasBeenChosen = false;
 	var defenderHasBeenChosen = false;
+	var enemyCount = 3;
+	var gameStarted = false;
 
 	/*
 		Game object usage and rules
@@ -19,16 +21,24 @@ $(document).ready(function() {
 
 	/////////////////// SECTION 1 FRONT END CODE ///////////////////
     $("#id-start-game").click(function() {
+		resetGame();
+		gameStarted = true;
+    });
+
+    function resetGame() {
         $(".div-curly, .div-moe, .div-larry, .div-shemp").show();
         $(".div-curly-enemy, .div-moe-enemy, .div-larry-enemy, .div-shemp-enemy").hide();
         $(".div-curly-defender, .div-moe-defender, .div-larry-defender, .div-shemp-defender").hide();
+
 		fighterHasBeenChosen = false;
 		defenderHasBeenChosen = false;
+		enemyCount = 3;
 
-        gameObj.startGame();
-        for(var i = 0; i < 4; i++)
+		gameObj.startGame();		
+		for(var i = 0; i < 4; i++) {
            $(hpClasses[i]).text("HP "+ gameObj.getHP(i).toString());
-    });
+		}
+    }
 
     $(".button-attack").click(function() {
         if(fighterHasBeenChosen && defenderHasBeenChosen)
@@ -46,6 +56,8 @@ $(document).ready(function() {
     		{
     			// return 0 fighter is dead
     			$(".p-attack-info-top").text("Fighter "+ gameObj.getFighterName() + " lost to defender "+ gameObj.getDefenderName() +".");
+    			resetGame();
+
     		} else if (ret === 1) {
     			// return 1 fighter and defender are still alive
     		} else {
@@ -55,13 +67,20 @@ $(document).ready(function() {
     			defenderHasBeenChosen = false;
     			$(defenderDivs[gameObj.defender]).hide();
     			gameObj.resetDefender();
+    			enemyCount--;
+    			if(enemyCount === 0)
+    			{
+    				$(".p-attack-info-top").text("FIGHTER "+ gameObj.getFighterName() + " DEFEATED ALL ENEMIES");
+    				$(".p-attack-info-bottom").text("PRESS START NEW GAME");
+    				resetGame();
+    			}
     		}
     	}
     });
 
     // Choose character functions
     $(".div-curly").click(function() {
-    	if(fighterHasBeenChosen === false) {
+    	if(fighterHasBeenChosen === false && gameStarted === true) {
 	        $(".div-moe, .div-larry, .div-shemp").hide();
 	        $(".div-moe-enemy, .div-larry-enemy, .div-shemp-enemy").show();
 	        gameObj.fighter = 0;
@@ -69,7 +88,7 @@ $(document).ready(function() {
     	}
     });
     $(".div-moe").click(function() {
-    	if(fighterHasBeenChosen === false) {
+    	if(fighterHasBeenChosen === false && gameStarted === true) {
 	        $(".div-curly, .div-larry, .div-shemp").hide();
 	        $(".div-curly-enemy, .div-larry-enemy, .div-shemp-enemy").show();
 	        gameObj.fighter = 1;
@@ -77,7 +96,7 @@ $(document).ready(function() {
 	    }
     });
     $(".div-larry").click(function() {
-    	if(fighterHasBeenChosen === false) {
+    	if(fighterHasBeenChosen === false && gameStarted === true) {
 	        $(".div-moe, .div-curly, .div-shemp").hide();
 	        $(".div-moe-enemy, .div-curly-enemy, .div-shemp-enemy").show();
 	        gameObj.fighter = 2;
@@ -85,7 +104,7 @@ $(document).ready(function() {
 	    }
     });
     $(".div-shemp").click(function() {
-    	if(fighterHasBeenChosen === false) {
+    	if(fighterHasBeenChosen === false && gameStarted === true) {
 	        $(".div-moe, .div-curly, .div-larry").hide();
 	        $(".div-moe-enemy, .div-curly-enemy, .div-larry-enemy").show();
 	        gameObj.fighter = 3;
@@ -168,7 +187,8 @@ $(document).ready(function() {
 		gameObj.logCharacters();
 		gameObj.createPermutations();
 		gameObj.fightWithPermutations();
-		gameObj.attackUntilDeath(3, 0);
+		console.log("All permutations completed.");
+		gameObj.startGame();
 	});
 
 
